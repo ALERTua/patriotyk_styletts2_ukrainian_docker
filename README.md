@@ -53,3 +53,9 @@ After the first run the data directory will look like this:
 - [ ] Dynamic model loading depending on an environment variable
 - [ ] Dynamic verbalization model loading depending on an environment variable
 - [ ] A separate endpoint that lists all voices
+
+
+### Caveats
+
+- The first start is slow as the models are downloaded.
+- The original code does not print anything in the log while doing that, so it looks like it's stuck.
