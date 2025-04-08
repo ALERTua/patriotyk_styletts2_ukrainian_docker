@@ -36,10 +36,8 @@ jobs:
         with:
           submodules: false
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          repository: https://huggingface.co/spaces/patriotyk/styletts2-ukrainian
+      - name: Checkout github.com repo
+        run: git clone https://huggingface.co/spaces/patriotyk/styletts2-ukrainian
 
       - name: Generate Docker metadata
         id: meta
