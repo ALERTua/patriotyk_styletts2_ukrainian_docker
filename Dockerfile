@@ -20,4 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy the contents of styletts2-ukrainian to the WORKDIR
 COPY styletts2-ukrainian/ .
 
+ENV STANZA_RESOURCES_DIR=/usr/src/app/.cache/stanza
+
 CMD ["python", "app.py"]
