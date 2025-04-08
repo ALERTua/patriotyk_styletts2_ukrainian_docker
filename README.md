@@ -3,7 +3,7 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 [![Russian Warship Go Fuck Yourself](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/RussianWarship.svg)](https://stand-with-ukraine.pp.ua)
 
-# Docker container for patriotyk/styletts2_ukrainian Gradio app
+## Docker container for patriotyk/styletts2_ukrainian Gradio app
 
 Repository: https://github.com/ALERTua/patriotyk_styletts2_ukrainian_docker
 
@@ -11,7 +11,7 @@ GitHub Docker Registry: https://github.com/ALERTua/patriotyk_styletts2_ukrainian
 
 Docker Hub: https://hub.docker.com/r/alertua/patriotyk_styletts2_ukrainian_docker
 
-## Description
+### Description
 
 Docker image for the [patriotyk/styletts2-ukrainian](https://huggingface.co/spaces/patriotyk/styletts2-ukrainian) gradio app.
 
