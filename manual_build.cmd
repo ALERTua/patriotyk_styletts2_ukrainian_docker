@@ -5,7 +5,6 @@ setlocal enabledelayedexpansion enableextensions
 if not defined DOCKER_HOSTNAME set DOCKER_HOSTNAME=docker
 if not defined DOCKER_HOST set DOCKER_HOST=tcp://%DOCKER_HOSTNAME%:2375
 if not defined STAGE set STAGE=production
-if not defined CONTAINER_NAME set CONTAINER_NAME=test
 if not defined DOCKERFILE set DOCKERFILE=Dockerfile
 set TAG_BASE=ghcr.io/alertua/patriotyk_styletts2_ukrainian_docker
 set TAG_BASE_DOCKERHUB=alertua/patriotyk_styletts2_ukrainian_docker
