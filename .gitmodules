@@ -1,0 +1,6 @@
+[submodule "styletts2-ukrainian"]
+	path = styletts2-ukrainian
+	url = https://huggingface.co/spaces/patriotyk/styletts2-ukrainian
+[submodule "script"]
+	path = script
+	url = https://github.com/ALERTua/script.git
