@@ -35,10 +35,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-#RUN apk add --update \
-#    git \
-#    && rm -rf /var/cache/apk/*
-
 RUN \
     --mount=type=cache,target=$UV_CACHE_DIR \
     --mount=type=bind,source=$SOURCE_DIR_NAME/requirements.txt,target=requirements.txt \
@@ -56,11 +52,6 @@ ARG UV_PROJECT_ENVIRONMENT
 ARG UV_CACHE_DIR
 
 ENV \
-    # OS
-    UID=1000 \
-    GID=1000 \
-    USER=appuser \
-    GROUP=appgroup \
     # App
     APP_DIR=$APP_DIR \
     SOURCE_DIR_NAME=$SOURCE_DIR_NAME \
@@ -76,8 +67,7 @@ ENV \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 
-ENV \
-    STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
+ENV STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
 
 EXPOSE $PORT
 
@@ -86,23 +76,9 @@ WORKDIR $APP_DIR
 VOLUME $APP_DIR/.cache
 VOLUME $APP_DIR/onnx
 
-RUN \
-    addgroup --gid $GID "$GROUP" \
-    && adduser --no-create-home --gecos --disabled-password --ingroup "$GROUP" --uid "$UID" $USER \
-    && mkdir -p $APP_DIR/.cache \
-    && mkdir -p $APP_DIR/onnx \
-    && chown $UID:$GID $APP_DIR $APP_DIR/.cache $APP_DIR/onnx
+COPY --from=builder $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
 
-COPY \
-    --from=builder \
-    --chown=$UID:$GID \
-    $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
-
-COPY \
-    --chown=$UID:$GID \
-    $SOURCE_DIR_NAME/ .
-
-USER $USER
+COPY $SOURCE_DIR_NAME/ .
 
 ENTRYPOINT []
 
