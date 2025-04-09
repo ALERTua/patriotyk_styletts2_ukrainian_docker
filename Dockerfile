@@ -1,25 +1,110 @@
-FROM python:3.12-slim AS production
+ARG PYTHON_VERSION=3.12
 
-ENV GRADIO_SERVER_NAME="0.0.0.0"
+ARG APP_DIR=/usr/src/app
+ARG UV_PROJECT_ENVIRONMENT=.venv
+ARG UV_CACHE_DIR=.uv_cache
+ARG SOURCE_DIR_NAME=styletts2-ukrainian
 
-ENV PORT=7860
-EXPOSE $PORT
 
-VOLUME /usr/src/app/.cache
-VOLUME /usr/src/app/onnx
-WORKDIR /usr/src/app
+FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-bookworm-slim AS builder
+
+ARG UV_CACHE_DIR
+ARG UV_PROJECT_ENVIRONMENT
+ARG APP_DIR
+ARG SOURCE_DIR_NAME
+
+ENV \
+    # uv
+    UV_PYTHON_DOWNLOADS=0 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_FROZEN=1 \
+    UV_NO_PROGRESS=true \
+    UV_CACHE_DIR=$UV_CACHE_DIR \
+    UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT \
+    # pip
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    # App
+    APP_DIR=$APP_DIR \
+    SOURCE_DIR_NAME=$SOURCE_DIR_NAME
+
+WORKDIR $APP_DIR
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY styletts2-ukrainian/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+#RUN apk add --update \
+#    git \
+#    && rm -rf /var/cache/apk/*
 
-# copy the contents of styletts2-ukrainian to the WORKDIR
-COPY styletts2-ukrainian/ .
+RUN \
+    --mount=type=cache,target=$UV_CACHE_DIR \
+    --mount=type=bind,source=$SOURCE_DIR_NAME/requirements.txt,target=requirements.txt \
+    uv venv --no-project $UV_PROJECT_ENVIRONMENT \
+    && uv pip install -r requirements.txt --no-config
 
-ENV STANZA_RESOURCES_DIR=/usr/src/app/.cache/stanza
 
-CMD ["python", "app.py"]
+FROM builder AS production
+
+LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
+
+ARG SOURCE_DIR_NAME
+ARG APP_DIR
+ARG UV_PROJECT_ENVIRONMENT
+ARG UV_CACHE_DIR
+
+ENV \
+    # OS
+    UID=1000 \
+    GID=1000 \
+    USER=appuser \
+    GROUP=appgroup \
+    # App
+    APP_DIR=$APP_DIR \
+    SOURCE_DIR_NAME=$SOURCE_DIR_NAME \
+    PORT=7860 \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    # uv
+    UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT \
+    UV_CACHE_DIR=$UV_CACHE_DIR \
+    # Python
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONIOENCODING=utf-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+
+ENV \
+    STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
+
+EXPOSE $PORT
+
+WORKDIR $APP_DIR
+
+VOLUME $APP_DIR/.cache
+VOLUME $APP_DIR/onnx
+
+RUN \
+    addgroup --gid $GID "$GROUP" \
+    && adduser --no-create-home --gecos --disabled-password --ingroup "$GROUP" --uid "$UID" $USER \
+    && mkdir -p $APP_DIR/.cache \
+    && mkdir -p $APP_DIR/onnx \
+    && chown $UID:$GID $APP_DIR $APP_DIR/.cache $APP_DIR/onnx
+
+COPY \
+    --from=builder \
+    --chown=$UID:$GID \
+    $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
+
+COPY \
+    --chown=$UID:$GID \
+    $SOURCE_DIR_NAME/ .
+
+USER $USER
+
+ENTRYPOINT []
+
+CMD uv run app.py
+#CMD /bin/sh
