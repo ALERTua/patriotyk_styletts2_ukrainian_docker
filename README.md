@@ -38,7 +38,7 @@ After the first run the data directory will look like this:
 
 
 ### Resources usage
-- tag `latest` uses ~7.826 GiB of RAM
+- tag `latest` uses ~7.8 GiB of RAM
 
 
 ### Things to do that I have no knowledge on (help appreciated)
