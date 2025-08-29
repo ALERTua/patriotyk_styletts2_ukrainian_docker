@@ -6,7 +6,7 @@ ARG UV_CACHE_DIR=.uv_cache
 ARG SOURCE_DIR_NAME=styletts2-ukrainian
 
 
-FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-bookworm-slim AS builder
+FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-trixie-slim AS builder
 
 ARG UV_CACHE_DIR
 ARG UV_PROJECT_ENVIRONMENT
