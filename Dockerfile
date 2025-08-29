@@ -71,9 +71,6 @@ ENV STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
 
 EXPOSE $PORT
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=5 \
-    CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
-
 WORKDIR $APP_DIR
 
 VOLUME $APP_DIR/.cache
@@ -82,6 +79,9 @@ VOLUME $APP_DIR/onnx
 COPY --from=builder $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
 
 COPY $SOURCE_DIR_NAME/ .
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=5 \
+    CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
 
 ENTRYPOINT []
 
