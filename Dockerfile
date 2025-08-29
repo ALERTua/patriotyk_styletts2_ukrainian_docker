@@ -1,17 +1,18 @@
-ARG PYTHON_VERSION=3.12
-
-ARG APP_DIR=/usr/src/app
-ARG UV_PROJECT_ENVIRONMENT=.venv
-ARG UV_CACHE_DIR=.uv_cache
-ARG SOURCE_DIR_NAME=styletts2-ukrainian
+ARG \
+    PYTHON_VERSION=3.12 \
+    APP_DIR=/usr/src/app \
+    UV_PROJECT_ENVIRONMENT=.venv \
+    UV_CACHE_DIR=.uv_cache \
+    SOURCE_DIR_NAME=styletts2-ukrainian
 
 
 FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-trixie-slim AS builder
 
-ARG UV_CACHE_DIR
-ARG UV_PROJECT_ENVIRONMENT
-ARG APP_DIR
-ARG SOURCE_DIR_NAME
+ARG \
+    UV_CACHE_DIR \
+    UV_PROJECT_ENVIRONMENT \
+    APP_DIR \
+    SOURCE_DIR_NAME
 
 ENV \
     # uv
@@ -46,10 +47,11 @@ FROM builder AS production
 
 LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
-ARG SOURCE_DIR_NAME
-ARG APP_DIR
-ARG UV_PROJECT_ENVIRONMENT
-ARG UV_CACHE_DIR
+ARG \
+    SOURCE_DIR_NAME \
+    APP_DIR \
+    UV_PROJECT_ENVIRONMENT \
+    UV_CACHE_DIR
 
 ENV \
     # App
@@ -67,18 +69,18 @@ ENV \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 
+WORKDIR $APP_DIR
+
+COPY $SOURCE_DIR_NAME/ .
+
+COPY --from=builder $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
+
 ENV STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
 
 EXPOSE $PORT
 
-WORKDIR $APP_DIR
-
 VOLUME $APP_DIR/.cache
 VOLUME $APP_DIR/onnx
-
-COPY --from=builder $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
-
-COPY $SOURCE_DIR_NAME/ .
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=5 \
     CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
