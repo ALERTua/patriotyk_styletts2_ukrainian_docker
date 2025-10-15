@@ -57,7 +57,7 @@ ENV \
     # App
     APP_DIR=$APP_DIR \
     SOURCE_DIR_NAME=$SOURCE_DIR_NAME \
-    PORT=7860 \
+    GRADIO_SERVER_PORT=7860 \
     GRADIO_SERVER_NAME=0.0.0.0 \
     # uv
     UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT \
@@ -69,21 +69,23 @@ ENV \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 
+ENV \
+    STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza \
+    XDG_CACHE_HOME=$APP_DIR/.cache
+
+EXPOSE $GRADIO_SERVER_PORT
+
 WORKDIR $APP_DIR
 
 COPY $SOURCE_DIR_NAME/ .
 
 COPY --from=builder $APP_DIR/$UV_PROJECT_ENVIRONMENT $UV_PROJECT_ENVIRONMENT
 
-ENV STANZA_RESOURCES_DIR=$APP_DIR/.cache/stanza
-
-EXPOSE $PORT
-
 VOLUME $APP_DIR/.cache
 VOLUME $APP_DIR/onnx
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=5 \
-    CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
+    CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $GRADIO_SERVER_PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
 
 ENTRYPOINT []
 

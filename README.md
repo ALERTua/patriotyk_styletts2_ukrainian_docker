@@ -27,7 +27,7 @@ The best way is to use the [docker-compose.yml](https://github.com/ALERTua/style
 
 #### Gradio Web UI
 
-You can access the Gradio Web UI at http://{container_ip}:$PORT
+You can access the Gradio Web UI at http://{container_ip}:$GRADIO_SERVER_PORT
 
 
 ### Data volume structure
