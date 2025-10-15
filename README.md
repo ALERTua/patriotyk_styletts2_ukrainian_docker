@@ -10,8 +10,6 @@ Repository: https://github.com/ALERTua/patriotyk_styletts2_ukrainian_docker
 
 GitHub Docker Registry: https://github.com/ALERTua/patriotyk_styletts2_ukrainian_docker/pkgs/container/patriotyk_styletts2_ukrainian_docker
 
-Docker Hub: https://hub.docker.com/r/alertua/patriotyk_styletts2_ukrainian_docker
-
 
 ### Description
 
