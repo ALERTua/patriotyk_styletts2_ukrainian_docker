@@ -29,10 +29,12 @@ You can access the Gradio Web UI at http://{container_ip}:$GRADIO_SERVER_PORT
 
 
 ### Data volume structure
-After the first run the data directory will look like this:
+After the first run the `/data` directory will look like this:
 
-- `.cache` - Stressify and download cache. ~188mb
-- `onnx` - contains ONNX verbalization models downloaded from HuggingFace Hub. ~4.5gb
+- `.cache` - Huggingface models download cache. ~8GB
+- `stanza` - tokenizer download cache. ~200MB
+- `uv_cache` - cache for installing prerequisites ~6.2gb
+- `venv` - working environment ~6.2gb
 
 
 ### Resources usage
