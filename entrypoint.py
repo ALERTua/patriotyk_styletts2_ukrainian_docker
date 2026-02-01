@@ -9,6 +9,5 @@ if __name__ == "__main__":
         default_concurrency_limit=concurrency_limit,
     )
     demo.launch(
-        show_api=True,
         max_threads=concurrency_limit,
     )
