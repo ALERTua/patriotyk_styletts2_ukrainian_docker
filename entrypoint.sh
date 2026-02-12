@@ -8,5 +8,4 @@ source $UV_PROJECT_ENVIRONMENT/bin/activate
 
 cd $APP_DIR
 uv pip install -r requirements.txt
-uv pip install "transformers==5.0.0"
 uv run --no-config entrypoint.py
