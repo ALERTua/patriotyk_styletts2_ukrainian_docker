@@ -59,3 +59,56 @@ After the first run the `/data` directory will look like this:
 
 - The first start is slow as the models are downloaded.
 - The original code does not print anything in the log while doing that, so it looks like it's stuck.
+
+### Overriding Packages (e.g., for newer GPUs)
+
+If you need to override packages (like PyTorch for newer GPU support), you have two options:
+
+#### Option 1: Using a requirements file (recommended for PyTorch)
+
+1. Copy the example file:
+   ```bash
+   cp user_requirements.txt.example user_requirements.txt
+   ```
+
+2. Edit `user_requirements.txt` to your needs (uncomment the appropriate section)
+
+3. Run the container:
+   ```bash
+   docker run \
+     -v $(pwd)/user_requirements.txt:/app/user_requirements.txt \
+     -e EXTRA_REQUIREMENTS=/app/user_requirements.txt \
+     -p 7860:7860 \
+     ghcr.io/alertua/patriotyk_styletts2_ukrainian_docker:latest
+   ```
+
+#### Option 2: Using environment variable (simple packages only)
+
+```bash
+docker run \
+  -e EXTRA_PACKAGES="torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121" \
+  ...
+```
+
+> **Note:** For PyTorch with custom index URLs, use Option 1 (requirements file) as it properly supports the `--index-url` directive.
+
+#### RTX 5070 Example
+
+RTX 5070 (Blackwell architecture) requires PyTorch 2.5+ with CUDA 12.4:
+
+1. Create `user_requirements.txt`:
+   ```txt
+   --index-url https://download.pytorch.org/whl/cu124
+   torch==2.5.1
+   torchaudio
+   ```
+
+2. Run with GPU support:
+   ```bash
+   docker run --gpus all \
+     -v $(pwd)/user_requirements.txt:/app/user_requirements.txt \
+     -e EXTRA_REQUIREMENTS=/app/user_requirements.txt \
+     ...
+   ```
+
+See [`user_requirements.txt.example`](user_requirements.txt.example) for more examples.
