@@ -6,18 +6,15 @@ if [[ ! -d "$UV_PROJECT_ENVIRONMENT" ]]; then
 fi
 source $UV_PROJECT_ENVIRONMENT/bin/activate
 
+# UV_OVERRIDE is read by uv natively: version pins in that file override
+# requirements.txt pins during resolution (see README "Overriding Packages")
+if [[ -n "${UV_OVERRIDE}" && ! -f "${UV_OVERRIDE}" ]]; then
+  echo "WARNING: UV_OVERRIDE file not found: ${UV_OVERRIDE} - ignoring"
+  unset UV_OVERRIDE
+fi
+
 cd $APP_DIR
 uv pip install -r requirements.txt
-
-# Install extra requirements from file if specified and file exists
-if [[ -n "${EXTRA_REQUIREMENTS}" ]]; then
-  if [[ -f "${EXTRA_REQUIREMENTS}" ]]; then
-    echo "Installing extra requirements from ${EXTRA_REQUIREMENTS}..."
-    uv pip install -r "${EXTRA_REQUIREMENTS}"
-  else
-    echo "WARNING: EXTRA_REQUIREMENTS file not found: ${EXTRA_REQUIREMENTS} - skipping"
-  fi
-fi
 
 # Install extra packages if specified
 if [[ -n "${EXTRA_PACKAGES}" ]]; then

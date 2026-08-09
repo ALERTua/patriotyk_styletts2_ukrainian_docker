@@ -60,55 +60,62 @@ After the first run the `/data` directory will look like this:
 - The first start is slow as the models are downloaded.
 - The original code does not print anything in the log while doing that, so it looks like it's stuck.
 
-### Overriding Packages (e.g., for newer GPUs)
+### Overriding Packages (e.g., for older/newer GPUs)
 
-If you need to override packages (like PyTorch for newer GPU support), you have two options:
+> **Breaking change:** the `EXTRA_REQUIREMENTS` environment variable has been
+> replaced by `UV_OVERRIDE`. The old variable is silently ignored. Reason:
+> `EXTRA_REQUIREMENTS` was installed as a second step *after* the main
+> requirements, so every container start first restored the stock pins
+> (multi-GB torch download) and then reverted them back — twice the traffic
+> on every start. `UV_OVERRIDE` replaces the pins during resolution instead,
+> so packages are installed once and further starts change nothing.
 
-#### Option 1: Using a requirements file (recommended for PyTorch)
+If you need to override packages (like PyTorch for a GPU the default build
+does not support), you have two options:
 
-1. Copy the example file:
-   ```bash
-   cp user_requirements.txt.example user_requirements.txt
-   ```
+#### Option 1: Using an override file (recommended for PyTorch)
 
-2. Edit `user_requirements.txt` to your needs (uncomment the appropriate section)
+1. Copy [`user_requirements.txt.example`](user_requirements.txt.example) into
+   your data volume as `user_requirements.txt` and uncomment the section you
+   need (there are examples for GTX 10xx / RTX 50xx / CPU-only inside).
 
-3. Run the container:
+2. Run the container with two environment variables — `UV_OVERRIDE` is the
+   path to the file **inside the container**, `UV_EXTRA_INDEX_URL` points to
+   the PyTorch wheel index matching your CUDA build:
    ```bash
    docker run \
-     -v $(pwd)/user_requirements.txt:/app/user_requirements.txt \
-     -e EXTRA_REQUIREMENTS=/app/user_requirements.txt \
+     -v $(pwd)/data:/data \
+     -e UV_OVERRIDE=/data/user_requirements.txt \
+     -e UV_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu126 \
      -p 7860:7860 \
      ghcr.io/alertua/patriotyk_styletts2_ukrainian_docker:latest
    ```
+
+Every version pin in the file overrides the corresponding pin in
+`requirements.txt`. If the file is missing, the container logs a warning and
+starts with stock versions.
 
 #### Option 2: Using environment variable (simple packages only)
 
 ```bash
 docker run \
-  -e EXTRA_PACKAGES="torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121" \
+  -e EXTRA_PACKAGES="some-package==1.2.3" \
   ...
 ```
 
-> **Note:** For PyTorch with custom index URLs, use Option 1 (requirements file) as it properly supports the `--index-url` directive.
+> **Note:** `EXTRA_PACKAGES` is installed as an extra step and can conflict
+> with the stock pins — for PyTorch always use Option 1.
 
-#### RTX 5070 Example
+### uv cache (`UV_CACHE_DIR`)
 
-RTX 5070 (Blackwell architecture) requires PyTorch 2.5+ with CUDA 12.4:
+`UV_CACHE_DIR` is the uv download cache directory **inside the container**.
+It defaults to `/data/uv_cache`, i.e. it lives in the data volume and
+survives container re-creation — no extra configuration needed.
 
-1. Create `user_requirements.txt`:
-   ```txt
-   --index-url https://download.pytorch.org/whl/cu124
-   torch==2.5.1
-   torchaudio
-   ```
+To share one uv cache between several containers/projects, bind a host
+directory over the default location:
 
-2. Run with GPU support:
-   ```bash
-   docker run --gpus all \
-     -v $(pwd)/user_requirements.txt:/app/user_requirements.txt \
-     -e EXTRA_REQUIREMENTS=/app/user_requirements.txt \
-     ...
-   ```
-
-See [`user_requirements.txt.example`](user_requirements.txt.example) for more examples.
+```yaml
+    volumes:
+      - /path/to/shared/uv_cache:/data/uv_cache
+```
