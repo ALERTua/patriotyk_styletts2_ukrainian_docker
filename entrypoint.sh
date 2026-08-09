@@ -25,4 +25,4 @@ if [[ -n "${EXTRA_PACKAGES}" ]]; then
   uv pip install ${EXTRA_PACKAGES}
 fi
 
-uv run --no-config entrypoint.py
+exec uv run --no-config entrypoint.py

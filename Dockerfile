@@ -68,7 +68,7 @@ EXPOSE $GRADIO_SERVER_PORT
 VOLUME $DATA_DIR
 
 ENTRYPOINT []
-CMD /bin/bash
+CMD ["/bin/bash"]
 
 
 # -----------------------------------------------------------------
@@ -79,8 +79,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT []
-CMD /bin/bash
+CMD ["/bin/bash"]
 
 
 # -----------------------------------------------------------------
@@ -91,6 +90,5 @@ LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 HEALTHCHECK --interval=15s --timeout=5s --start-period=3s --retries=10 \
     CMD python -c "import sys, http.client; c=http.client.HTTPConnection('localhost', $GRADIO_SERVER_PORT, timeout=5); c.request('HEAD', '/'); r=c.getresponse(); sys.exit(0 if r.status==200 else 1)"
 
-ENTRYPOINT []
 # CMD ["sleep", "infinity"]
-CMD ./entrypoint.sh
+CMD ["./entrypoint.sh"]
