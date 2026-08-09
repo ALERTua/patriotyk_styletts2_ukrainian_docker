@@ -4,6 +4,7 @@
 *.session
 *.cmd
 Modelfile
+script/
 
 # Git
 .git/
